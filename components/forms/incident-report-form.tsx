@@ -1,0 +1,247 @@
+'use client'
+
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Loader2, AlertTriangle, Sparkles } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { GeneratedDocumentCard } from '@/components/documents/generated-document-card'
+import { incidentReportSchema, IncidentReportFormValues } from '@/lib/validations'
+import { toast } from '@/hooks/use-toast'
+
+export function IncidentReportForm() {
+  const [generatedContent, setGeneratedContent] = useState<string | null>(null)
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [isSaving, setIsSaving] = useState(false)
+  const [isSaved, setIsSaved] = useState(false)
+  const [currentValues, setCurrentValues] = useState<IncidentReportFormValues | null>(null)
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    getValues,
+  } = useForm<IncidentReportFormValues>({
+    resolver: zodResolver(incidentReportSchema),
+    defaultValues: {
+      incidentDate: new Date().toISOString().split('T')[0],
+    },
+  })
+
+  const generateReport = async (data: IncidentReportFormValues) => {
+    setIsGenerating(true)
+    setGeneratedContent(null)
+    setIsSaved(false)
+    setCurrentValues(data)
+
+    try {
+      const response = await fetch('/api/generate/incident-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to generate incident report')
+      }
+
+      setGeneratedContent(result.data.generatedOutput)
+      toast({
+        title: 'Incident report generated',
+        description: 'Please carefully review for accuracy before saving.',
+        variant: 'success',
+      })
+    } catch (error) {
+      toast({
+        title: 'Generation failed',
+        description: error instanceof Error ? error.message : 'Please try again.',
+        variant: 'destructive',
+      })
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
+  const handleSave = async () => {
+    if (!generatedContent || !currentValues) return
+    setIsSaving(true)
+
+    try {
+      const response = await fetch('/api/documents', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'incident-report',
+          participantName: currentValues.participantName,
+          date: currentValues.incidentDate,
+          rawInput: currentValues.rawNotes,
+          generatedOutput: generatedContent,
+        }),
+      })
+
+      if (!response.ok) {
+        const result = await response.json()
+        throw new Error(result.error || 'Failed to save document')
+      }
+
+      setIsSaved(true)
+      toast({
+        title: 'Document saved',
+        description: 'Incident report saved to your history.',
+        variant: 'success',
+      })
+    } catch (error) {
+      toast({
+        title: 'Save failed',
+        description: error instanceof Error ? error.message : 'Please try again.',
+        variant: 'destructive',
+      })
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleRegenerate = () => {
+    const values = getValues()
+    generateReport(values)
+  }
+
+  return (
+    <div className="space-y-6">
+      <Card className="border-border/50">
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-amber-500/10 border border-amber-500/20">
+              <AlertTriangle className="w-5 h-5 text-amber-400" />
+            </div>
+            <div>
+              <CardTitle>Incident Report Generator</CardTitle>
+              <CardDescription>
+                Generate a structured ABCD incident report from your raw incident notes.
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-start gap-3 p-3 rounded-lg border border-amber-500/30 bg-amber-500/10 mb-5">
+            <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
+            <p className="text-xs text-amber-400">
+              Document only what you directly observed or was reported to you. Accuracy is critical.
+              The AI will only use information you provide.
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit(generateReport)} className="space-y-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="participantName">
+                  Participant Name <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="participantName"
+                  placeholder="e.g. John Smith"
+                  {...register('participantName')}
+                  className={errors.participantName ? 'border-destructive' : ''}
+                />
+                {errors.participantName && (
+                  <p className="text-xs text-destructive">{errors.participantName.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="incidentDate">
+                  Incident Date <span className="text-destructive">*</span>
+                </Label>
+                <Input
+                  id="incidentDate"
+                  type="date"
+                  {...register('incidentDate')}
+                  className={errors.incidentDate ? 'border-destructive' : ''}
+                />
+                {errors.incidentDate && (
+                  <p className="text-xs text-destructive">{errors.incidentDate.message}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="rawNotes">
+                Raw Incident Notes <span className="text-destructive">*</span>
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Describe what happened before the incident, the behaviour you observed, what
+                strategies were used, and what happened afterward. Be as specific as possible.
+              </p>
+              <Textarea
+                id="rawNotes"
+                placeholder="e.g. Before: John was in the lounge, TV was on, support worker asked him to turn it off for dinner. Behaviour: John threw the remote at the wall, yelled loudly, stood up and paced. De-escalation: Support worker gave space, spoke calmly, reduced noise. Consequence: John calmed down after 10 minutes, sat at table, ate dinner."
+                rows={10}
+                {...register('rawNotes')}
+                className={`min-h-[220px] ${errors.rawNotes ? 'border-destructive' : ''}`}
+              />
+              {errors.rawNotes && (
+                <p className="text-xs text-destructive">{errors.rawNotes.message}</p>
+              )}
+            </div>
+
+            <Button
+              type="submit"
+              size="lg"
+              className="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-black"
+              disabled={isGenerating}
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Generating Report...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  Generate Incident Report
+                </>
+              )}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      {isGenerating && (
+        <Card className="border-border/50">
+          <CardContent className="py-12">
+            <div className="flex flex-col items-center gap-4 text-center">
+              <div className="relative">
+                <div className="w-12 h-12 rounded-full border-2 border-amber-500/20 border-t-amber-500 animate-spin" />
+              </div>
+              <div>
+                <p className="font-medium">Generating incident report...</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Structuring your notes into Antecedent, Behaviour, De-escalation, and Consequence.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {generatedContent && !isGenerating && currentValues && (
+        <GeneratedDocumentCard
+          type="incident-report"
+          participantName={currentValues.participantName}
+          date={currentValues.incidentDate}
+          content={generatedContent}
+          isSaved={isSaved}
+          onSave={handleSave}
+          onRegenerate={handleRegenerate}
+          isSaving={isSaving}
+        />
+      )}
+    </div>
+  )
+}
