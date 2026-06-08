@@ -85,10 +85,16 @@ export function ProgressNoteForm() {
         }),
       })
 
-      if (!response.ok) {
-        const result = await response.json()
-        throw new Error(result.error || 'Failed to save document')
-      }
+      let result: { success: boolean; error?: string } = { success: false }
+try {
+  result = await response.json()
+} catch {
+  throw new Error(`Server error (${response.status}) — please try again`)
+}
+
+if (!response.ok) {
+  throw new Error(result.error || `Save failed with status ${response.status}`)
+}
 
       setIsSaved(true)
       toast({

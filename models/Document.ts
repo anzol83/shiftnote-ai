@@ -51,4 +51,4 @@ DocumentSchema.index({ userId: 1, createdAt: -1 })
 DocumentSchema.index({ userId: 1, type: 1 })
 
 export const DocumentModel =
-  mongoose.models.Document || mongoose.model<IDocument>('Document', DocumentSchema)
+mongoose.models.ShiftDocument || mongoose.model<IDocument>('ShiftDocument', DocumentSchema)
