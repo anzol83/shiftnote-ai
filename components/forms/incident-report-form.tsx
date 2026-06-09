@@ -291,7 +291,7 @@ export function IncidentReportForm() {
               </p>
               <Textarea
                 id="rawNotes"
-                placeholder="e.g. Before: John was in the lounge, TV was on, support worker asked him to turn it off for dinner. Behaviour: John threw the remote at the wall, yelled loudly, stood up and paced. De-escalation: Support worker gave space, spoke calmly, reduced noise. Consequence: John calmed down after 10 minutes, sat at table, ate dinner."
+                placeholder="e.g. Before: John was in the kitchen. Support worker asked John if he was ready to take his medication. Behaviour: John raised his voice, pushed the medication cup off the bench, and walked out of the kitchen. He stood in the hallway and continued yelling. De-escalation: Support worker remained calm, did not follow John into the hallway, and waited quietly at a distance. Support worker spoke in a low, calm tone and acknowledged John. Consequence: John returned to the kitchen after approximately 5 minutes. The environment became calm. Medication was not administered at this time."
                 rows={10}
                 {...register('rawNotes')}
                 className={`min-h-[220px] ${errors.rawNotes ? 'border-destructive' : ''}`}
