@@ -56,12 +56,7 @@ export default function LandingPage() {
         </div>
 
         <div className="relative max-w-4xl mx-auto">
-          {/* Early access pill */}
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-xs font-medium mb-8">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-            Free During Early Access
-            <ChevronRight className="w-3 h-3" />
-          </div>
+          
 
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.1] mb-6">
             Write Professional
@@ -81,7 +76,7 @@ export default function LandingPage() {
               <SignUpButton mode="modal">
                 <Button size="xl" className="w-full sm:w-auto gap-2 shadow-lg shadow-primary/20">
                   <Sparkles className="w-4 h-4" />
-                  Start Free — No Card Required
+                  Start Free
                 </Button>
               </SignUpButton>
               <SignInButton mode="modal">
@@ -211,47 +206,48 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Early Access CTA */}
-      <section className="py-24 px-6 md:px-10 border-t border-border/40 text-center">
-        <div className="max-w-2xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs font-medium mb-8">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-            Early Access
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Free During Early Access</h2>
-          <p className="text-muted-foreground mb-6 leading-relaxed">
-            ShiftNote AI is currently free while we gather feedback from Australian disability
-            support workers. No payments. No subscriptions. No strings attached.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-muted-foreground mb-10">
-            <div className="flex items-center gap-1.5">
-              <Check className="w-4 h-4 text-primary" /> No credit card
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Check className="w-4 h-4 text-primary" /> No subscription
-            </div>
-            <div className="flex items-center gap-1.5">
-              <Check className="w-4 h-4 text-primary" /> No limits during beta
-            </div>
-          </div>
-          <SignedOut>
-            <SignUpButton mode="modal">
-              <Button size="xl" className="shadow-lg shadow-primary/20">
-                <Sparkles className="w-4 h-4" />
-                Get Started Free
-              </Button>
-            </SignUpButton>
-          </SignedOut>
-          <SignedIn>
-            <Link href="/dashboard">
-              <Button size="xl" className="shadow-lg shadow-primary/20">
-                <Sparkles className="w-4 h-4" />
-                Go to Dashboard
-              </Button>
-            </Link>
-          </SignedIn>
+      {/* FAQ */}
+<section className="py-24 px-6 md:px-10 border-t border-border/40">
+  <div className="max-w-2xl mx-auto">
+    <div className="text-center mb-16">
+      <h2 className="text-2xl md:text-3xl font-bold mb-3">Frequently asked questions</h2>
+      <p className="text-muted-foreground">Everything you need to know before getting started.</p>
+    </div>
+    <div className="space-y-4">
+      {[
+        {
+          q: 'Is this suitable for NDIS providers?',
+          a: 'Yes. All generated notes follow NDIS documentation standards, use person-centred language, and are suitable for provider audits and compliance reviews.',
+        },
+        {
+          q: 'Will the AI make up information?',
+          a: 'No. The AI only uses the notes you provide. It will never invent, assume, or add information that was not in your original notes. Accuracy is built into the core of how it works.',
+        },
+        {
+          q: 'Is my data secure?',
+          a: 'Yes. All documents are stored securely and are only accessible by you. No one else can see your notes or your participants\' information.',
+        },
+        {
+          q: 'Can I use this on my phone?',
+          a: 'Yes. ShiftNote AI is fully mobile-friendly and works on any phone or tablet browser. No app download needed.',
+        },
+        {
+          q: 'Do I still need to review the generated notes?',
+          a: 'Yes. Always review generated documentation before submitting. The AI is a tool to help you write faster - you remain responsible for the accuracy of what you submit.',
+        },
+        {
+          q: 'Is it really free?',
+          a: 'Yes, completely free during early access. No credit card required, no subscription, no hidden fees.',
+        },
+      ].map((item, index) => (
+        <div key={index} className="rounded-xl border border-border/50 p-6 hover:border-border transition-colors">
+          <h3 className="font-semibold text-base mb-2">{item.q}</h3>
+          <p className="text-sm text-muted-foreground leading-relaxed">{item.a}</p>
         </div>
-      </section>
+      ))}
+    </div>
+  </div>
+</section>
 
       {/* Footer */}
       <footer className="border-t border-border/40 py-8 px-6 md:px-10">
@@ -261,7 +257,7 @@ export default function LandingPage() {
             <span className="text-sm font-medium">ShiftNote AI</span>
           </div>
           <p className="text-xs text-muted-foreground text-center">
-            Built for Australian disability support workers. Not a clinical tool — always verify documentation.
+            Built for Australian disability support workers. Not a clinical tool - always verify documentation.
           </p>
         </div>
       </footer>
